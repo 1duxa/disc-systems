@@ -42,25 +42,26 @@ function logGraph(graph) {
   }
 }
 
-function depthFirstSearch(graph, source, DFS_stack) {
-    if (!graph[source]) {
-      return;
-    }
-    DFS_stack.push(source);
-    console.log(source);
+function breadthFirstSearch(graph, source) {
+  const queue = [source];
+  let BFS_queue = [];  
+  while(queue.length > 0){
   
-    for (let neighbor of graph[source]) {
-      depthFirstSearch(graph, neighbor, DFS_stack);
+    const curr = queue.shift();
+    BFS_queue.push(curr);
+    console.log(curr);
+    
+    for (let neighbor of graph[curr]) {
+        queue.push(neighbor);
+        if (neighbor.length === 0) {
+            return BFS_queue;
+          }
     }
   }
+}
 
-let graph = readGraphFromFile("./lb8/lb8.txt");
+let graph = readGraphFromFile("./lb9/lb9.txt");
 logGraph(graph);
+console.log(breadthFirstSearch(graph.list, 1));
 
-let DFS_stack = [];
- 
-depthFirstSearch(graph.list, 1,DFS_stack);
-
-console.log(DFS_stack);
-
-module.exports = { readGraphFromFile, depthFirstSearch };
+module.exports = { readGraphFromFile, breadthFirstSearch } 

@@ -57,3 +57,4 @@ let logTable = (table) => {
     }
 
     console.log( bells_nums(resultTable) );
+module.exports = {bells_nums, STIRLING_SECOND_KIND}

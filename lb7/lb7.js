@@ -4,11 +4,10 @@ function readGraphFromFile(filename) {
   try {
     const data = fs.readFileSync(filename, "utf8");
     const lines = data.split("\n");
-    const len = lines.length;
     const [n, m] = lines[0].split(" ").map(Number);
 
     const edges = [];
-    for (let i = 1; i < len; i++) {
+    for (let i = 1; i < lines.length; i++) {
       let [v, u] = lines[i].split(" ").map(Number);
 
       if (!u) u = 0;
@@ -60,3 +59,5 @@ let stepin = stepinVershyn(graph);
 console.log("Cтeпeнi : ",stepin);
 let is = isolated_or_solo_nodes(stepin);
 console.log(` Ізольовані ${is["Ізольовані"]} \n Висячі ${is["Висячі"]}`);
+
+module.exports = {stepinVershyn,isolated_or_solo_nodes}

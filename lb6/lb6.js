@@ -1,78 +1,100 @@
-const fs = require('fs');
+const fs = require("fs");
 
 function readGraphFromFile(filename) {
-    try {
-        const data = fs.readFileSync(filename, 'utf8');
-        const lines = data.split('\n');
+  try {
+    const data = fs.readFileSync(filename, "utf8");
+    const lines = data.split("\n");
 
-        const [n, m] = lines[0].split(' ').map(Number);
+    const [n, m] = lines[0].split(" ").map(Number);
 
-        const edges = {};
-        for (let i = 1; i <= m; i++) {
-            const [vi, ui] = lines[i].split(' ').map(Number);
+    const list = {};
 
-            if (!edges[vi]) {
-                edges[vi] = [];
-            }
-            if (!edges[ui]) {
-                edges[ui] = [];
-            }
+    for (let i = 1; i < lines.length; i++) {
+      let [v, u] = lines[i].split(" ").map(Number);
 
-            edges[vi].push(ui);
-          
-        }
+      if (!u || u === undefined) {
+        u = [];
+      }
 
-        return { n, m, edges };
-    } catch (error) {
-        console.error('Помилка при читанні файлу:', error.message);
-        return null;
+      if (!list[v]) {
+        list[v] = [];
+      }
+
+      list[v].push(u);
     }
+
+    return { n, m, list };
+  } catch (error) {
+    console.error("Помилка при читанні файлу:", error.message);
+    return null;
+  }
 }
 
-function IncidenceMatrix(graph) {
-    const incidenceMatrix = [];
+function logGraph(graph) {
+  const list = graph.list;
 
-    for (let i = 1; i <= graph.n; i++) {
-        const row = [];
-        for (let j = 0; j < graph.m; j++) {
-            const edge = graph.edges[i].includes(graph.edges[j]) ? 1 : 0;
-            row.push(edge);
-        }
-        incidenceMatrix.push(row);
+  for (const key in list) {
+    const neighbors = list[key];
+    neighbors.forEach((neighbor) => {
+      console.log(` ${key} --> ${neighbor}`);
+    });
+  }
+}
+
+function createIncidenceMatrix(graph) {
+    const { n,m, list } = graph;
+   
+    const incidenceMatrix = Array.from({ length: n }, () => Array(m).fill(0));
+  
+    let edgeIndex = 0;
+  
+    for (const key in list) {
+      const rebra = list[key];
+      for (let j = 0; j < rebra.length; j++) {
+        const connectedkey = rebra[j];
+  
+        incidenceMatrix[key - 1][edgeIndex] = -1;
+        incidenceMatrix[connectedkey - 1][edgeIndex] = 1;
+  
+        edgeIndex++;
+      }
     }
-
+  
     return incidenceMatrix;
-}
+  }
+function createAdjacencyMatrix(graph) {
+  const { n,m, list } = graph;
+  const adjacencyMatrix = [];
 
-function AdjacencyMatrix(graph) {
-    const adjacencyMatrix = [];
+  for (let i = 1; i <= n; i++) {
+    const row = [];
 
-    for (let i = 1; i <= graph.n; i++) {
-        const row = [];
-        for (let j = 1; j <= graph.n; j++) {
-            const connected = graph.edges[i].includes(j) ? 1 : 0;
-            row.push(connected);
-        }
-        adjacencyMatrix.push(row);
+    for (let j = 1; j <= n; j++) {
+      if (list[i] && list[i].includes(j)) {
+        row.push(1);
+      } else {
+        row.push(0);
+      }
     }
 
-    return adjacencyMatrix;
+    adjacencyMatrix.push(row);
+  }
+
+  return adjacencyMatrix;
 }
 
 function writeMatrixToFile(matrix, filename) {
-    const data = matrix.map(row => row.join(' ')).join('\n');
-    fs.writeFileSync(filename, data, 'utf8');
-    console.log(`Матрицю записано у файл: ${filename}`);
+  const data = matrix.map((row) => row.join(" ")).join("\n");
+  fs.writeFileSync(filename, data, "utf8");
+  console.log(`Матрицю записано у файл: ${filename}`);
 }
 
 const graph = readGraphFromFile("./lb6/lb6.txt");
+logGraph(graph);
+const incidenceMatrix = createIncidenceMatrix(graph);
+const adjacencyMatrix = createAdjacencyMatrix(graph);
 
-console.log(graph);
-for (let i = 1; i <= graph.n; i++) {
-    console.log(`Edges for vertex ${i}: ${graph.edges[i].join(', ')}`);
-}
+writeMatrixToFile(incidenceMatrix, "./lb6/incidence_matrix.txt");
+writeMatrixToFile(adjacencyMatrix, "./lb6/adjacency_matrix.txt");
 
-if (graph) {
-    writeMatrixToFile(IncidenceMatrix(graph), "./lb6/i_matrix.txt");
-    writeMatrixToFile(AdjacencyMatrix(graph), "./lb6/a_matrix.txt");
-}
+module.exports = {createIncidenceMatrix}
